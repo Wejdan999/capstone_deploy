@@ -1,0 +1,6 @@
+streamlit
+paddleocr
+scikit-image
+python-docx
+imgaug
+ultralytics
