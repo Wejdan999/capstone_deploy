@@ -28,32 +28,35 @@ st.set_page_config(page_title="Driver Behavior Detection System")
 st.sidebar.title("Driver Behavior Detection System")
 input_option = st.sidebar.selectbox("Select Detection Type", ("Image Processing", "Video Processing", "Camera Processing"))
 
-# Function to send SMS
+# Function to send SMS after behavior detection
 def send_sms(custom_message):
-    conn = http.client.HTTPSConnection("9klkx3.api.infobip.com")
-    payload = json.dumps({
-        "messages": [
-            {
-                "destinations": [{"to": "966508056428"}],
-                "from": "447491163443",
-                "text": custom_message
-            }
-        ]
-    })
-    headers = {
-        'Authorization': 'App YOUR_API_KEY',  # Replace with your actual API key
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-    conn.request("POST", "/sms/2/text/advanced", payload, headers)
-    res = conn.getresponse()
-    data = res.read().decode("utf-8")
-    
-    response_json = json.loads(data)
-    if response_json.get("messages"):
-        message_status = response_json["messages"][0]["status"]["name"]
-        return "Message sent successfully!" if message_status == "PENDING_ACCEPTED" else f"Failed to send message: {message_status}"
-    return "Failed to send message"
+        conn = http.client.HTTPSConnection("9klkx3.api.infobip.com")
+        payload = json.dumps({
+            "messages": [
+                {
+                    "destinations": [{"to": "966508056428"}],
+                    "from": "447491163443",
+                    "text": custom_message
+                }
+            ]
+        })
+        headers = {
+            'Authorization': 'App 86cde8061a25db1d5d0ec2b667c11951-0df99321-d263-444f-abb5-879f95519e9d',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        conn.request("POST", "/sms/2/text/advanced", payload, headers)
+        res = conn.getresponse()
+        data = res.read().decode("utf-8")
+        
+        response_json = json.loads(data)
+        if response_json.get("messages"):
+            message_status = response_json["messages"][0]["status"]["name"]
+            if message_status == "PENDING_ACCEPTED":
+                return "Message sent successfully!"
+            else:
+                return f"Failed to send message: {message_status}"
+        return "Failed to send message"
 
 # Function for model detection
 def model_detection():
