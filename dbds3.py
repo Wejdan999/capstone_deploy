@@ -1,5 +1,8 @@
 import streamlit as st
-import cv2
+try:
+    import cv2
+except ImportError as e:
+    st.error(f"Error importing cv2: {e}")
 import numpy as np
 from PIL import Image
 from ultralytics import YOLO
