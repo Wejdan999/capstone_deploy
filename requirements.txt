@@ -1,6 +1,6 @@
 streamlit==1.18.0
 opencv-python==4.5.5.64
-numpy==1.21.0
+numpy>=1.21.2
 pillow==8.4.0
 ultralytics==8.0.34
 paddleocr==2.3.1
