@@ -10,8 +10,10 @@ import tempfile
 import os
 import matplotlib.pyplot as plt
 
+st.set_page_config(page_title="Driver Behavior Detection System")
+
 # Load YOLO and OCR models
-model_path = "C:/Users/Wejda/OneDrive/Desktop/capstone_deploy/best (1).pt"
+model_path = "/workspaces/capstone_deploy/best (1).pt"
 ocr_model = PaddleOCR(use_angle_cls=True, lang='en')
 
 if os.path.exists(model_path):
@@ -19,8 +21,7 @@ if os.path.exists(model_path):
 else:
     st.error("Model file not found. Please check the path.")
 
-# Set page title
-st.set_page_config(page_title="Driver Behavior Detection System")
+
 
 
 
@@ -219,5 +220,4 @@ ax2.pie(sizes2, explode=explode2, labels=labels2, colors=colors2,
         autopct='%1.1f%%', shadow=True, startangle=90)
 ax2.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 st.sidebar.pyplot(fig2)
-
 
