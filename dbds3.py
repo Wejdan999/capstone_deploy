@@ -1,8 +1,5 @@
 import streamlit as st
-try:
-    import cv2
-except ImportError as e:
-    st.error(f"Error importing cv2: {e}")
+import cv2
 import numpy as np
 from PIL import Image
 from ultralytics import YOLO
@@ -24,43 +21,39 @@ if os.path.exists(model_path):
 else:
     st.error("Model file not found. Please check the path.")
 
-
-
-
-
 # Create a sidebar for input type selection
 st.sidebar.title("Driver Behavior Detection System")
 input_option = st.sidebar.selectbox("Select Detection Type", ("Image Processing", "Video Processing", "Camera Processing"))
 
 # Function to send SMS after behavior detection
 def send_sms(custom_message):
-        conn = http.client.HTTPSConnection("9klkx3.api.infobip.com")
-        payload = json.dumps({
-            "messages": [
-                {
-                    "destinations": [{"to": "966508056428"}],
-                    "from": "447491163443",
-                    "text": custom_message
-                }
-            ]
-        })
-        headers = {
-            'Authorization': 'App 86cde8061a25db1d5d0ec2b667c11951-0df99321-d263-444f-abb5-879f95519e9d',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-        conn.request("POST", "/sms/2/text/advanced", payload, headers)
-        res = conn.getresponse()
-        data = res.read().decode("utf-8")
-        
-        response_json = json.loads(data)
-        if response_json.get("messages"):
-            message_status = response_json["messages"][0]["status"]["name"]
-            if message_status == "PENDING_ACCEPTED":
-                return "Message sent successfully!"
-            else:
-                return f"Failed to send message: {message_status}"
-        return "Failed to send message"
+    conn = http.client.HTTPSConnection("9klkx3.api.infobip.com")
+    payload = json.dumps({
+        "messages": [
+            {
+                "destinations": [{"to": "966508056428"}],
+                "from": "447491163443",
+                "text": custom_message
+            }
+        ]
+    })
+    headers = {
+        'Authorization': 'App 86cde8061a25db1d5d0ec2b667c11951-0df99321-d263-444f-abb5-879f95519e9d',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+    conn.request("POST", "/sms/2/text/advanced", payload, headers)
+    res = conn.getresponse()
+    data = res.read().decode("utf-8")
+    
+    response_json = json.loads(data)
+    if response_json.get("messages"):
+        message_status = response_json["messages"][0]["status"]["name"]
+        if message_status == "PENDING_ACCEPTED":
+            return "Message sent successfully!"
+        else:
+            return f"Failed to send message: {message_status}"
+    return "Failed to send message"
 
 # Function for model detection
 def model_detection():
@@ -104,7 +97,6 @@ def model_detection():
             vid = cv2.VideoCapture(tfile.name)
 
             stframe = st.empty()
-
             text_detected = False
             behaviors_detected = False
 
@@ -122,11 +114,11 @@ def model_detection():
                         detected_text = "\n".join([line[1][0] for line in ocr_result[0]])
                         text_detected = True
                         st.write(f"Extracted text: {detected_text}")
-                
+
                 detected_behaviors = []
                 for result in yolo_result[0].boxes.data.tolist():
                     class_id = int(result[5])
-                    if class_id in (EATING_AND_DRINKING, USING_PHONE):
+                    if class_id in (1, 2):  # Assuming 1 and 2 correspond to your behaviors
                         detected_behaviors.append("Dear driver, please pay attention to your driving.")
                 
                 if detected_behaviors and not behaviors_detected:
@@ -141,54 +133,53 @@ def model_detection():
             vid.release()
 
     elif input_option == "Camera Processing":
-      st.subheader("Camera Processing")
-    
-    if 'camera_open' not in st.session_state:
-        st.session_state.camera_open = False
+        st.subheader("Camera Processing")
 
-    if st.button("Open/Close Camera", key="toggle_camera"):
-        st.session_state.camera_open = not st.session_state.camera_open
-        
-        if st.session_state.camera_open:
-            cap = cv2.VideoCapture(0)
-            stframe = st.empty()
-            st.write("Camera is open. Click 'Open/Close Camera' to close.")
+        if 'camera_open' not in st.session_state:
+            st.session_state.camera_open = False
 
-            while st.session_state.camera_open:
-                ret, frame = cap.read()
-                if not ret:
-                    st.write("Failed to capture frame.")
-                    break
+        if st.button("Open/Close Camera", key="toggle_camera"):
+            st.session_state.camera_open = not st.session_state.camera_open
+            
+            if st.session_state.camera_open:
+                cap = cv2.VideoCapture(0)
+                stframe = st.empty()
+                st.write("Camera is open. Click 'Open/Close Camera' to close.")
                 
-                # Display the frame in the Streamlit app
-                stframe.image(frame, channels="BGR")
+                behaviors_detected = False
 
-            cap.release()  # Release the camera when done
-            st.write("Camera closed.")
-        else:
-            if 'cap' in locals():
-                cap.release()  # Ensure camera is released when closing
-            st.write("Camera closed.")
-            yolo_result = yolo_model(frame)
-            annotated_frame = yolo_result[0].plot() if len(yolo_result) > 0 else frame
+                while st.session_state.camera_open:
+                    ret, frame = cap.read()
+                    if not ret:
+                        st.write("Failed to capture frame.")
+                        break
+                    
+                    # YOLO inference
+                    yolo_result = yolo_model(frame)
+                    annotated_frame = yolo_result[0].plot() if len(yolo_result) > 0 else frame
 
-            stframe.image(annotated_frame, channels="BGR")
+                    # Display the frame in the Streamlit app
+                    stframe.image(annotated_frame, channels="BGR")
 
-            detected_behaviors = []
-            for result in yolo_result[0].boxes.data.tolist():
+                    detected_behaviors = []
+                    for result in yolo_result[0].boxes.data.tolist():
                         class_id = int(result[5])
-                        if class_id in (EATING_AND_DRINKING, USING_PHONE):
+                        if class_id in (1, 2):  # Assuming 1 and 2 correspond to your behaviors
                             detected_behaviors.append("Dear driver, please pay attention to your driving.")
                     
-            if detected_behaviors and not behaviors_detected:
+                    if detected_behaviors and not behaviors_detected:
                         custom_message = " | ".join(detected_behaviors)
                         with st.spinner("Sending message..."):
                             response = send_sms(custom_message)
                         st.success(response)
                         behaviors_detected = True
 
-            cap.release()
-            st.write("Camera closed.")
+                cap.release()  # Release the camera when done
+                st.write("Camera closed.")
+            else:
+                if 'cap' in locals() and cap.isOpened():
+                    cap.release()  # Ensure camera is released when closing
+                st.write("Camera closed.")
 
 # Render the model detection functionality
 model_detection()
@@ -198,7 +189,7 @@ confidence_threshold = st.sidebar.slider(
     min_value=0.0,
     max_value=1.0,
     value=0.3,
-    step=0.01  # Optional: Adjust the step for finer control
+    step=0.01
 )
 
 st.sidebar.subheader("Driver Statistics")
