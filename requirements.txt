@@ -4,4 +4,4 @@ paddlepaddle==2.6.2  # Confirm compatibility
 paddleocr
 opencv-python-headless
 numpy
-libgl1
+
