@@ -140,28 +140,35 @@ def model_detection():
 
             vid.release()
 
-    elif input_option == "Camera Processing":
-        st.subheader("Camera Processing")
+elif input_option == "Camera Processing":
+    st.subheader("Camera Processing")
+    
+    if 'camera_open' not in st.session_state:
+        st.session_state.camera_open = False
+
+    if st.button("Open/Close Camera", key="toggle_camera"):
+        st.session_state.camera_open = not st.session_state.camera_open
         
-        if 'camera_open' not in st.session_state:
-            st.session_state.camera_open = False
-        
-        if st.button("Open/Close Camera", key="toggle_camera"):
-            st.session_state.camera_open = not st.session_state.camera_open
-            
-            if st.session_state.camera_open:
-                cap = cv2.VideoCapture(0)
-                stframe = st.empty()
-                st.write("Camera is open. Click 'Open/Close Camera' to close.")
+        if st.session_state.camera_open:
+            cap = cv2.VideoCapture(0)
+            stframe = st.empty()
+            st.write("Camera is open. Click 'Open/Close Camera' to close.")
 
-                behaviors_detected = False
+            while st.session_state.camera_open:
+                ret, frame = cap.read()
+                if not ret:
+                    st.write("Failed to capture frame.")
+                    break
+                
+                # Display the frame in the Streamlit app
+                stframe.image(frame, channels="BGR")
 
-                while st.session_state.camera_open:
-                    ret, frame = cap.read()
-                    if not ret:
-                        st.write("Failed to capture frame.")
-                        break
-
+            cap.release()  # Release the camera when done
+            st.write("Camera closed.")
+        else:
+            if 'cap' in locals():
+                cap.release()  # Ensure camera is released when closing
+            st.write("Camera closed.")
                     yolo_result = yolo_model(frame)
                     annotated_frame = yolo_result[0].plot() if len(yolo_result) > 0 else frame
 
