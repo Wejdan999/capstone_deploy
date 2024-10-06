@@ -1,7 +1,7 @@
-streamlit
-ultralytics
-paddlepaddle==2.4.0
+streamlit==1.39.0
+ultralytics==8.0.36  # Check for the latest compatible version
+paddlepaddle==2.6.2  # Or another compatible version
 paddleocr
 opencv-python-headless
-
+numpy
 
