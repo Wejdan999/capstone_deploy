@@ -230,4 +230,3 @@ ax2.pie(sizes2, explode=explode2, labels=labels2, colors=colors2,
         autopct='%1.1f%%', shadow=True, startangle=90)
 ax2.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 st.sidebar.pyplot(fig2)
-
