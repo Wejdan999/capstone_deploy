@@ -55,12 +55,21 @@ def send_sms(custom_message):
             return f"Failed to send message: {message_status}"
     return "Failed to send message"
 
+# Define behavior constants
+EATING_AND_DRINKING = 1
+USING_PHONE = 2
+
+# Render the Confidence Threshold slider before calling model_detection
+confidence_threshold = st.sidebar.slider(
+    'Confidence Threshold',
+    min_value=0.0,
+    max_value=1.0,
+    value=0.3,
+    step=0.01
+)
+
 # Function for model detection
 def model_detection():
-    # Define behavior constants
-    EATING_AND_DRINKING = 1
-    USING_PHONE = 2
-
     if input_option == "Image Processing":
         st.subheader("Choose an image")
         image_file = st.file_uploader("", type=["jpg", "jpeg", "png"], key="image_file_uploader")
@@ -181,14 +190,6 @@ def model_detection():
 
 # Render the model detection functionality
 model_detection()
-
-confidence_threshold = st.sidebar.slider(
-    'Confidence Threshold',
-    min_value=0.0,
-    max_value=1.0,
-    value=0.3,
-    step=0.01
-)
 
 st.sidebar.subheader("Driver Statistics")
 
