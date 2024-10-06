@@ -1,7 +1,6 @@
 streamlit==1.39.0
 ultralytics==8.0.36
-paddlepaddle==2.6.2  # Confirm compatibility
-paddleocr
-opencv-python-headless
-numpy
-
+paddlepaddle==2.6.2  # Confirm compatibility with your system
+paddleocr==2.6.1.3  # Ensure that paddleocr works with the paddlepaddle version
+numpy>=1.23.0  # Upgraded numpy to be compatible with other libraries
+opencv-python  # For video processing
