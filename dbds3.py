@@ -1,5 +1,12 @@
 import streamlit as st
 import cv2
+
+st.title("Test OpenCV Import")
+
+if cv2:
+    st.success("OpenCV imported successfully!")
+else:
+    st.error("Failed to import OpenCV.")
 import numpy as np
 from PIL import Image
 from ultralytics import YOLO
