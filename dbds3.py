@@ -140,8 +140,8 @@ def model_detection():
 
             vid.release()
 
-elif input_option == "Camera Processing":
-    st.subheader("Camera Processing")
+    elif input_option == "Camera Processing":
+      st.subheader("Camera Processing")
     
     if 'camera_open' not in st.session_state:
         st.session_state.camera_open = False
@@ -169,26 +169,26 @@ elif input_option == "Camera Processing":
             if 'cap' in locals():
                 cap.release()  # Ensure camera is released when closing
             st.write("Camera closed.")
-                    yolo_result = yolo_model(frame)
-                    annotated_frame = yolo_result[0].plot() if len(yolo_result) > 0 else frame
+            yolo_result = yolo_model(frame)
+            annotated_frame = yolo_result[0].plot() if len(yolo_result) > 0 else frame
 
-                    stframe.image(annotated_frame, channels="BGR")
+            stframe.image(annotated_frame, channels="BGR")
 
-                    detected_behaviors = []
-                    for result in yolo_result[0].boxes.data.tolist():
+            detected_behaviors = []
+            for result in yolo_result[0].boxes.data.tolist():
                         class_id = int(result[5])
                         if class_id in (EATING_AND_DRINKING, USING_PHONE):
                             detected_behaviors.append("Dear driver, please pay attention to your driving.")
                     
-                    if detected_behaviors and not behaviors_detected:
+            if detected_behaviors and not behaviors_detected:
                         custom_message = " | ".join(detected_behaviors)
                         with st.spinner("Sending message..."):
                             response = send_sms(custom_message)
                         st.success(response)
                         behaviors_detected = True
 
-                cap.release()
-                st.write("Camera closed.")
+            cap.release()
+            st.write("Camera closed.")
 
 # Render the model detection functionality
 model_detection()
