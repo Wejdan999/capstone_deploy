@@ -21,46 +21,46 @@ if os.path.exists(model_path):
 else:
     st.error("Model file not found. Please check the path.")
 
-
-
-
-
 # Create a sidebar for input type selection
 st.sidebar.title("Driver Behavior Detection System")
 input_option = st.sidebar.selectbox("Select Detection Type", ("Image Processing", "Video Processing", "Camera Processing"))
 
 # Function to send SMS after behavior detection
 def send_sms(custom_message):
-        conn = http.client.HTTPSConnection("9klkx3.api.infobip.com")
-        payload = json.dumps({
-            "messages": [
-                {
-                    "destinations": [{"to": "966508056428"}],
-                    "from": "447491163443",
-                    "text": custom_message
-                }
-            ]
-        })
-        headers = {
-            'Authorization': 'App 86cde8061a25db1d5d0ec2b667c11951-0df99321-d263-444f-abb5-879f95519e9d',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-        conn.request("POST", "/sms/2/text/advanced", payload, headers)
-        res = conn.getresponse()
-        data = res.read().decode("utf-8")
-        
-        response_json = json.loads(data)
-        if response_json.get("messages"):
-            message_status = response_json["messages"][0]["status"]["name"]
-            if message_status == "PENDING_ACCEPTED":
-                return "Message sent successfully!"
-            else:
-                return f"Failed to send message: {message_status}"
-        return "Failed to send message"
+    conn = http.client.HTTPSConnection("9klkx3.api.infobip.com")
+    payload = json.dumps({
+        "messages": [
+            {
+                "destinations": [{"to": "966508056428"}],
+                "from": "447491163443",
+                "text": custom_message
+            }
+        ]
+    })
+    headers = {
+        'Authorization': 'App 86cde8061a25db1d5d0ec2b667c11951-0df99321-d263-444f-abb5-879f95519e9d',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+    conn.request("POST", "/sms/2/text/advanced", payload, headers)
+    res = conn.getresponse()
+    data = res.read().decode("utf-8")
+    
+    response_json = json.loads(data)
+    if response_json.get("messages"):
+        message_status = response_json["messages"][0]["status"]["name"]
+        if message_status == "PENDING_ACCEPTED":
+            return "Message sent successfully!"
+        else:
+            return f"Failed to send message: {message_status}"
+    return "Failed to send message"
 
 # Function for model detection
 def model_detection():
+    # Define behavior constants
+    EATING_AND_DRINKING = 1
+    USING_PHONE = 2
+
     if input_option == "Image Processing":
         st.subheader("Choose an image")
         image_file = st.file_uploader("", type=["jpg", "jpeg", "png"], key="image_file_uploader")
@@ -79,8 +79,6 @@ def model_detection():
             st.write(extracted_text)
 
             detected_behaviors = []
-            EATING_AND_DRINKING = 1
-            USING_PHONE = 2
             for result in yolo_result[0].boxes.data.tolist():
                 class_id = int(result[5])
                 if class_id in (EATING_AND_DRINKING, USING_PHONE):
@@ -101,7 +99,6 @@ def model_detection():
             vid = cv2.VideoCapture(tfile.name)
 
             stframe = st.empty()
-
             text_detected = False
             behaviors_detected = False
 
@@ -123,7 +120,8 @@ def model_detection():
                 detected_behaviors = []
                 for result in yolo_result[0].boxes.data.tolist():
                     class_id = int(result[5])
-                    if class_id in (EATING_AND_DRINKING, USING_PHONE):
+                    confidence = result[4]  # Extract confidence
+                    if confidence >= confidence_threshold and class_id in (EATING_AND_DRINKING, USING_PHONE):
                         detected_behaviors.append("Dear driver, please pay attention to your driving.")
                 
                 if detected_behaviors and not behaviors_detected:
@@ -156,7 +154,7 @@ def model_detection():
                 while st.session_state.camera_open:
                     ret, frame = cap.read()
                     if not ret:
-                        st.write("Failed to capture frame.")
+                        st.write("Failed to capture frame. Please check your camera connection.")
                         break
 
                     yolo_result = yolo_model(frame)
@@ -167,7 +165,8 @@ def model_detection():
                     detected_behaviors = []
                     for result in yolo_result[0].boxes.data.tolist():
                         class_id = int(result[5])
-                        if class_id in (EATING_AND_DRINKING, USING_PHONE):
+                        confidence = result[4]  # Extract confidence
+                        if confidence >= confidence_threshold and class_id in (EATING_AND_DRINKING, USING_PHONE):
                             detected_behaviors.append("Dear driver, please pay attention to your driving.")
                     
                     if detected_behaviors and not behaviors_detected:
@@ -188,7 +187,7 @@ confidence_threshold = st.sidebar.slider(
     min_value=0.0,
     max_value=1.0,
     value=0.3,
-    step=0.01  # Optional: Adjust the step for finer control
+    step=0.01
 )
 
 st.sidebar.subheader("Driver Statistics")
