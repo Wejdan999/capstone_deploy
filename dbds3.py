@@ -132,7 +132,7 @@ def model_detection():
 
             vid.release()
 
-    elif input_option  == "📸 Camera Processing":
+    elif input_option == "📸 Camera Processing":
         st.subheader("📸 Camera Processing.")
         
         if 'camera_open' not in st.session_state:
@@ -182,8 +182,6 @@ def model_detection():
 
                 cap.release()
                 st.write("Camera closed.")
-
-
 
 # Render the model detection functionality
 model_detection()
