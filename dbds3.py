@@ -1,12 +1,14 @@
 import streamlit as st
 import cv2
 
-st.title("Test OpenCV Import")
+st.title("OpenCV Import Test")
 
-if cv2:
+try:
+    # Check OpenCV version
+    st.write("OpenCV version:", cv2.__version__)
     st.success("OpenCV imported successfully!")
-else:
-    st.error("Failed to import OpenCV.")
+except ImportError as e:
+    st.error(f"Failed to import OpenCV: {e}")
 import numpy as np
 from PIL import Image
 from ultralytics import YOLO
