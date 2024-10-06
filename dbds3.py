@@ -132,20 +132,21 @@ def model_detection():
 
             vid.release()
 
-    elif input_option == "Camera Processing":
-        st.subheader("Camera Processing")
-
+    elif input_option  == "📸 Camera Processing":
+        st.subheader("📸 Camera Processing.")
+        
         if 'camera_open' not in st.session_state:
             st.session_state.camera_open = False
-
-        if st.button("Open/Close Camera", key="toggle_camera"):
+        
+        if st.button("Toggle Camera", key="toggle_camera"):
             st.session_state.camera_open = not st.session_state.camera_open
             
             if st.session_state.camera_open:
                 cap = cv2.VideoCapture(0)
                 stframe = st.empty()
-                st.write("Camera is open. Click 'Open/Close Camera' to close.")
-                
+                st.write("Camera is open. Click 'Toggle Camera' to close.")
+
+                # Variable to track if behaviors have been detected
                 behaviors_detected = False
 
                 while st.session_state.camera_open:
@@ -153,33 +154,36 @@ def model_detection():
                     if not ret:
                         st.write("Failed to capture frame.")
                         break
-                    
-                    # YOLO inference
+
+                    # Apply YOLO model
                     yolo_result = yolo_model(frame)
                     annotated_frame = yolo_result[0].plot() if len(yolo_result) > 0 else frame
 
-                    # Display the frame in the Streamlit app
                     stframe.image(annotated_frame, channels="BGR")
 
+                    # Detect behaviors
                     detected_behaviors = []
+                    EATING_AND_DRINKING = 1
+                    USING_PHONE = 2
                     for result in yolo_result[0].boxes.data.tolist():
                         class_id = int(result[5])
-                        if class_id in (1, 2):  # Assuming 1 and 2 correspond to your behaviors
-                            detected_behaviors.append("Dear driver, please pay attention to your driving.")
+                        if class_id == EATING_AND_DRINKING:
+                            detected_behaviors.append("Eating and drinking detected!")
+                        elif class_id == USING_PHONE:
+                            detected_behaviors.append("Using phone detected!")
                     
+                    # Send SMS once when behaviors are detected
                     if detected_behaviors and not behaviors_detected:
                         custom_message = " | ".join(detected_behaviors)
-                        with st.spinner("Sending message..."):
+                        with st.spinner("📡 Sending message..."):
                             response = send_sms(custom_message)
                         st.success(response)
                         behaviors_detected = True
 
-                cap.release()  # Release the camera when done
+                cap.release()
                 st.write("Camera closed.")
-            else:
-                if 'cap' in locals() and cap.isOpened():
-                    cap.release()  # Ensure camera is released when closing
-                st.write("Camera closed.")
+
+
 
 # Render the model detection functionality
 model_detection()
