@@ -1,5 +1,6 @@
 streamlit
 ultralytics
+paddlepaddle==2.4.0
 paddleocr
 opencv-python-headless
 
