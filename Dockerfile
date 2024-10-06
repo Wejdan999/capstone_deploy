@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 # Set the working directory
 WORKDIR /app
@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y libgl1-mesa-glx && \
 # Copy requirements file
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Upgrade pip and install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy your application code
 COPY . .
