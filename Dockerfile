@@ -4,13 +4,16 @@ FROM nvidia/cuda:12.1.0-runtime-ubuntu20.04
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy requirements file and install dependencies
-COPY requirements.txt ./
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y python3-pip && \
-    pip3 install --no-cache-dir -r requirements.txt && \
+    apt-get install -y libgl1-mesa-glx && \  # Required for OpenCV
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Copy requirements file and install dependencies
+COPY requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy the model file into the container
 COPY "best (1).pt" ./
